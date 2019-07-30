@@ -55,3 +55,7 @@ $client = new Client();
 $client->setAuth('shopId', 'secretKey');
 ```
 3. Вызовите нужный метод API. [Подробнее в документации к API Яндекс.Кассы](https://kassa.yandex.ru/docs/checkout-api/)
+
+## Тесты
+
+Добавили travis
