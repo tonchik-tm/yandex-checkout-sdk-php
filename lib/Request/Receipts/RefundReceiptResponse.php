@@ -50,7 +50,7 @@ class RefundReceiptResponse extends AbstractReceiptResponse
      */
     public function setSpecificProperties($receiptData)
     {
-        $this->setRefundId(!empty($receiptData['refund_id']) ? $receiptData['refund_id'] : null);
+        $this->setRefundId($receiptData['refund_id']);
     }
 
     /**
