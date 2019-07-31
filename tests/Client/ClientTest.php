@@ -1113,17 +1113,8 @@ class ClientTest extends TestCase
             }
         } else {
             $value = array('test' => iconv('utf-8', 'windows-1251', 'абвгдеёжз'));
-            if (version_compare(PHP_VERSION, '5.4') >= 0) {
-                try {
-                    $instance->encode($value);
-                    self::fail('Exception not thrown');
-                } catch (\Exception $e) {
-                    self::assertEquals('json_encode(): Invalid UTF-8 sequence in argument', $e->getMessage());
-                }
-            } else {
-                $decoded = json_decode(json_encode($value), true);
-                self::assertNotSame($decoded, $value);
-            }
+            $decoded = json_decode(json_encode($value), true);
+            self::assertNotSame($decoded, $value);
         }
     }
 
