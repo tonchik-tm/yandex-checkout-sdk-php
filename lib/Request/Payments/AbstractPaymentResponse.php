@@ -97,7 +97,9 @@ abstract class AbstractPaymentResponse extends Payment implements PaymentInterfa
             switch ($confirmationType) {
                 case ConfirmationType::REDIRECT:
                     $confirmation = new ConfirmationRedirect();
-                    $confirmation->setConfirmationUrl($paymentInfo['confirmation']['confirmation_url']);
+                    if (!empty($paymentInfo['confirmation']['confirmation_url'])) {
+                        $confirmation->setConfirmationUrl($paymentInfo['confirmation']['confirmation_url']);
+                    }
                     if (empty($paymentInfo['confirmation']['enforce'])) {
                         $confirmation->setEnforce(false);
                     } else {

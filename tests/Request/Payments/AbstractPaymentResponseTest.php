@@ -264,39 +264,6 @@ abstract class AbstractPaymentResponseTest extends TestCase
             $result[] = array($payment);
         }
 
-        $result[] = array(
-            array(
-                'id' => '24d3a241-000f-5000-a000-1874b71613e2',
-                'status' => 'pending',
-                'paid' => false,
-                'amount' => array(
-                    'value' => '2.00',
-                    'currency' => 'RUB'
-                ),
-                'confirmation' => array(
-                    'type' => 'redirect',
-                    'return_url' => 'https://www.merchant-website.com/error%20return_url',
-                    'confirmation_url' => 'https://money.yandex.ru/payments/external/confirmation?orderId=24d3a241-000f-5000-a000-1874b71613e2'
-                ),
-                'created_at' => '2019-07-31T12:50:09.080Z',
-                'description' => 'Заказ №999',
-                'metadata' => array(
-                    Random::str(1, 30, 'abcdefghijklmnopqrstuvwxyz') => Random::str(1, 100),
-                ),
-                'payment_method' => array(
-                    'type' => 'bank_card',
-                    'id' => '24d3a241-000f-5000-a000-1874b71613e2',
-                    'saved' => false
-                ),
-                'recipient' => array(
-                    'account_id' => '589966',
-                    'gateway_id' => '1565950'
-                ),
-                'refundable' => false,
-                'test' => true
-            )
-        );
-
         return $result;
     }
 
