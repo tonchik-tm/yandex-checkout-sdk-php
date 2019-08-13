@@ -2,7 +2,6 @@
 
 namespace Tests\YandexCheckout\Model\PaymentData;
 
-use YandexCheckout\Model\PaymentData\PaymentDataWebmoney;
 use YandexCheckout\Model\PaymentData\PaymentDataWechat;
 use YandexCheckout\Model\PaymentMethodType;
 
