@@ -30,7 +30,6 @@ use Psr\Log\LoggerInterface;
 use YandexCheckout\Common\Exceptions\ApiConnectionException;
 use YandexCheckout\Common\Exceptions\ApiException;
 use YandexCheckout\Common\Exceptions\AuthorizeException;
-use YandexCheckout\Common\Exceptions\ExtensionNotFoundException;
 use YandexCheckout\Common\HttpVerb;
 use YandexCheckout\Common\ResponseObject;
 use YandexCheckout\Helpers\RawHeadersParser;
@@ -160,14 +159,9 @@ class CurlClient implements ApiClientInterface
 
     /**
      * @return resource
-     * @throws ExtensionNotFoundException
      */
     private function initCurl()
     {
-        if (!extension_loaded('curl')) {
-            throw new ExtensionNotFoundException("curl");
-        }
-
         if (!$this->curl || !$this->keepAlive) {
             $this->curl = curl_init();
         }
