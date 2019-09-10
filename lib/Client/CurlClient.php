@@ -130,6 +130,7 @@ class CurlClient implements ApiClientInterface
      * @throws ApiConnectionException
      * @throws ApiException
      * @throws AuthorizeException
+     * @throws ExtensionNotFoundException
      */
     public function call($path, $method, $queryParams, $httpBody = null, $headers = array())
     {
@@ -396,9 +397,7 @@ class CurlClient implements ApiClientInterface
     {
         $headers = array_merge($this->defaultHeaders, $headers);
 
-        if ($agent = $this->getUserAgent()) {
-            $headers['YM-User-Agent'] = $agent->getHeaderString();
-        }
+        $headers['YM-User-Agent'] = $this->getUserAgent()->getHeaderString();
 
         if ($this->shopId && $this->shopPassword) {
             $encodedAuth              = base64_encode($this->shopId.":".$this->shopPassword);
@@ -412,7 +411,7 @@ class CurlClient implements ApiClientInterface
         }
 
         $headers = array_map(function ($key, $value) {
-            return $key.":".$value;
+            return $key . ":" . $value;
         }, array_keys($headers), $headers);
 
 
@@ -482,6 +481,7 @@ class CurlClient implements ApiClientInterface
      * @param $httpBody
      * @param $headers
      * @param $url
+     * @throws ExtensionNotFoundException
      */
     private function prepareCurl($method, $httpBody, $headers, $url)
     {

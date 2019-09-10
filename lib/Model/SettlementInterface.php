@@ -24,33 +24,27 @@
  * THE SOFTWARE.
  */
 
-namespace YandexCheckout\Client;
-
-use Psr\Log\LoggerInterface;
+namespace YandexCheckout\Model;
 
 /**
- * Interface ApiClientInterface
- * @package YandexCheckout\Client
+ * Interface PostReceiptResponseSettlementInterface
+ *
+ * @package YandexCheckout\Model
+ *
+ * @property-read string $type Вид оплаты в чеке
+ * @property-read AmountInterface $amount Размер оплаты
  */
-interface ApiClientInterface
+interface SettlementInterface
 {
     /**
-     * @param $path
-     * @param $method
-     * @param $queryParams
-     * @param $httpBody
-     * @param $headers
-     * @return mixed
+     * Возвращает вид оплаты в чеке (cashless | prepayment | postpayment | consideration)
+     * @return string Вид оплаты в чеке
      */
-    public function call($path, $method, $queryParams, $httpBody = null, $headers = array());
+    function getType();
 
     /**
-     * @param LoggerInterface|null $logger
+     * Возвращает размер оплаты
+     * @return AmountInterface Размер оплаты
      */
-    public function setLogger($logger);
-
-    /**
-     * @return UserAgent
-     */
-    public function getUserAgent();
+    function getAmount();
 }

@@ -34,6 +34,12 @@ use YandexCheckout\Helpers\TypeCast;
 use YandexCheckout\Model\AmountInterface;
 use YandexCheckout\Model\CurrencyCode;
 
+/**
+ * Class ReceiptItemAmount
+ * @package YandexCheckout\Model\Receipt
+ *
+ * @method fromArray($sourceArray)
+ */
 class ReceiptItemAmount extends AbstractObject implements AmountInterface
 {
     /**
@@ -94,6 +100,8 @@ class ReceiptItemAmount extends AbstractObject implements AmountInterface
             throw new InvalidPropertyValueException('Invalid amount value: "'.$value.'"', 0, 'amount.value', $value);
         }
         $this->_value = $castedValue;
+
+        return $this;
     }
 
     /**
@@ -118,6 +126,7 @@ class ReceiptItemAmount extends AbstractObject implements AmountInterface
      * Устанавливает код валюты
      * @param string $value Код валюты
      *
+     * @return ReceiptItemAmount
      * @throws EmptyPropertyValueException Генерируется если было передано пустое значение
      * @throws InvalidPropertyValueTypeException Генерируется если было передано значение невалидного типа
      * @throws InvalidPropertyValueException Генерируется если был передан неподдерживаемый код валюты
@@ -139,6 +148,8 @@ class ReceiptItemAmount extends AbstractObject implements AmountInterface
         } else {
             throw new InvalidPropertyValueTypeException('Invalid currency value type', 0, 'amount.currency', $value);
         }
+
+        return $this;
     }
 
     /**

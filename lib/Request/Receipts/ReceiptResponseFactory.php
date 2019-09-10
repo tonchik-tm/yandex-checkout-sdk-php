@@ -24,33 +24,44 @@
  * THE SOFTWARE.
  */
 
-namespace YandexCheckout\Client;
+namespace YandexCheckout\Request\Receipts;
 
-use Psr\Log\LoggerInterface;
+
+use YandexCheckout\Model\ReceiptType;
 
 /**
- * Interface ApiClientInterface
- * @package YandexCheckout\Client
+ * Class ReceiptResponseFactory
+ * @package YandexCheckout\Request\Receipts
  */
-interface ApiClientInterface
+class ReceiptResponseFactory
 {
-    /**
-     * @param $path
-     * @param $method
-     * @param $queryParams
-     * @param $httpBody
-     * @param $headers
-     * @return mixed
-     */
-    public function call($path, $method, $queryParams, $httpBody = null, $headers = array());
+    private $typeClassMap = array(
+        ReceiptType::PAYMENT => 'PaymentReceiptResponse',
+        ReceiptType::REFUND  => 'RefundReceiptResponse',
+    );
 
     /**
-     * @param LoggerInterface|null $logger
+     * @param array $data
+     *
+     * @return AbstractReceiptResponse
      */
-    public function setLogger($logger);
+    public function factory($data)
+    {
+        if (array_key_exists('type', $data)) {
+            $type = $data['type'];
+        } else {
+            throw new \InvalidArgumentException(
+                'Parameter type not specified in ReceiptResponseFactory.factory()'
+            );
+        }
+        if (!is_string($type)) {
+            throw new \InvalidArgumentException('Invalid receipt type value in receipt factory');
+        }
+        if (!in_array($type, ReceiptType::getValidValues())) {
+            throw new \InvalidArgumentException('Invalid receipt data type "' . $type . '"');
+        }
+        $className = __NAMESPACE__ . '\\' . $this->typeClassMap[$type];
 
-    /**
-     * @return UserAgent
-     */
-    public function getUserAgent();
+        return new $className($data);
+    }
 }

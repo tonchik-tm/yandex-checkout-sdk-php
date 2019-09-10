@@ -34,6 +34,8 @@ use YandexCheckout\Common\Exceptions\InvalidPropertyValueTypeException;
 use YandexCheckout\Helpers\TypeCast;
 use YandexCheckout\Model\ReceiptRegistrationStatus;
 use YandexCheckout\Model\ReceiptType;
+use YandexCheckout\Model\Settlement;
+use YandexCheckout\Model\SettlementInterface;
 
 /**
  * Class AbstractReceipt
@@ -58,12 +60,11 @@ use YandexCheckout\Model\ReceiptType;
  * @property int $taxSystemCode Код системы налогообложения. Число 1-6.
  * @property int $tax_system_code Код системы налогообложения. Число 1-6.
  * @property ReceiptResponseItemInterface[] $items Список товаров в заказе
+ * @property SettlementInterface[] $settlements Перечень совершенных расчетов.
  */
 abstract class AbstractReceiptResponse extends AbstractObject implements ReceiptResponseInterface
 {
     const LENGTH_RECEIPT_ID = 39;
-    const LENGTH_PAYMENT_ID = 36;
-    const LENGTH_REFUND_ID = 36;
 
     /** @var string Идентификатор чека в Яндекс.Кассе. */
     private $_id;
@@ -79,6 +80,9 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
 
     /** @var string Номер фискального накопителя в кассовом аппарате. */
     private $_fiscalStorageNumber;
+
+    /** @var string идентификатор объекта чека */
+    private $_object_id;
 
     /**
      * @var string Фискальный признак чека.
@@ -105,11 +109,13 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      * AbstractReceiptResponse constructor.
      *
      * @param mixed $receiptData
+     * @throws \Exception
      */
     public function __construct($receiptData)
     {
         $this->setId($receiptData['id']);
         $this->setType($receiptData['type']);
+        $this->setObjectId($this->factoryObjectId($receiptData));
         $this->setStatus($receiptData['status']);
 
         if (!empty($receiptData['tax_system_code'])) {
@@ -143,6 +149,17 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
         } else {
             throw new EmptyPropertyValueException('Empty items value in receipt', 0, 'receipt.items');
         }
+        if (!empty($receiptData['settlements'])) {
+            if (is_array($receiptData['settlements']) && count($receiptData['settlements'])) {
+                $itemsArray = array();
+                foreach ($receiptData['settlements'] as $item) {
+                    $itemsArray[] = new Settlement($item);
+                }
+                $this->setSettlements($itemsArray);
+            } else {
+                throw new EmptyPropertyValueException('Empty settlements value in receipt', 0, 'receipt.settlements');
+            }
+        }
 
         $this->setSpecificProperties($receiptData);
     }
@@ -159,6 +176,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      * Устанавливает идентификатор чека
      * @param string $value Идентификатор чека
      *
+     * @return AbstractReceiptResponse
+     *
      * @throws InvalidPropertyValueException Выбрасывается если длина переданной строки не равна 40
      * @throws InvalidPropertyValueTypeException Выбрасывается если в метод была передана не строка
      */
@@ -172,6 +191,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
         } else {
             throw new InvalidPropertyValueTypeException('Invalid receipt id value type', 0, 'Receipt.id', $value);
         }
+
+        return $this;
     }
 
     /**
@@ -185,6 +206,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
     /**
      * Устанавливает типа чека
      * @param string $value Тип чека
+     *
+     * @return AbstractReceiptResponse
      *
      * @throws InvalidPropertyValueException Выбрасывается если переданная строка не является валидным типом
      * @throws InvalidPropertyValueTypeException Выбрасывается если в метод была передана не строка
@@ -201,6 +224,47 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
                 'Invalid receipt type value type', 0, 'Receipt.type', $value
             );
         }
+
+        return $this;
+    }
+
+    /**
+     * Возвращает идентификатор платежа или возврата, для которого был сформирован чек.
+     * @return string
+     */
+    public function getObjectId()
+    {
+        return $this->_object_id;
+    }
+
+    /**
+     * Устанавливает идентификатор платежа или возврата, для которого был сформирован чек
+     *
+     * @param $value
+     */
+    public function setObjectId($value)
+    {
+        if (TypeCast::canCastToString($value)) {
+            $this->_object_id = (string)$value;
+        } else {
+            throw new InvalidPropertyValueTypeException('Invalid receipt object_id type', 0, 'Receipt.object_id', $value);
+        }
+    }
+
+    /**
+     * Фабричный метод создания идентификатора объекта, для которого был сформирован чек
+     *
+     * @param array $receiptData Массив данных чека
+     * @return string|null
+     */
+    private function factoryObjectId($receiptData)
+    {
+        if ($receiptData['type'] === ReceiptType::PAYMENT) {
+            return $receiptData['payment_id'];
+        } elseif ($receiptData['type'] === ReceiptType::REFUND) {
+            return $receiptData['refund_id'];
+        }
+        return null;
     }
 
     /**
@@ -214,6 +278,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
     /**
      * Устанавливает состояние регистрации фискального чека
      * @param string $value Состояние регистрации фискального чека
+     *
+     * @return AbstractReceiptResponse
      *
      * @throws InvalidPropertyValueException Выбрасывается если переданное состояние регистрации не существует
      * @throws InvalidPropertyValueTypeException Выбрасывается если переданный аргумент не строка
@@ -235,6 +301,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
                 'Invalid status value type', 0, 'Receipt.status', $value
             );
         }
+
+        return $this;
     }
 
     /**
@@ -271,6 +339,7 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      * Устанавливает номер фискального документа
      * @param string $value Номер фискального документа
      *
+     * @return AbstractReceiptResponse
      * @throws InvalidPropertyValueTypeException Выбрасывается если переданный аргумент не строка
      */
     public function setFiscalDocumentNumber($value)
@@ -284,6 +353,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
         } else {
             $this->_fiscalDocumentNumber = (string)$value;
         }
+
+        return $this;
     }
 
     /**
@@ -296,10 +367,14 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
 
     /**
      * @param string $fiscal_storage_number
+     *
+     * @return AbstractReceiptResponse
      */
     public function setFiscalStorageNumber($fiscal_storage_number)
     {
         $this->_fiscalStorageNumber = $fiscal_storage_number;
+
+        return $this;
     }
 
     /**
@@ -312,10 +387,14 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
 
     /**
      * @param string $fiscal_attribute
+     *
+     * @return AbstractReceiptResponse
      */
     public function setFiscalAttribute($fiscal_attribute)
     {
         $this->_fiscalAttribute = $fiscal_attribute;
+
+        return $this;
     }
 
     /**
@@ -328,10 +407,14 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
 
     /**
      * @param DateTime $registered_at
+     *
+     * @return AbstractReceiptResponse
      */
     public function setRegisteredAt($registered_at)
     {
         $this->_registeredAt = $registered_at;
+
+        return $this;
     }
 
     /**
@@ -344,10 +427,14 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
 
     /**
      * @param string $fiscal_provider_id
+     *
+     * @return AbstractReceiptResponse
      */
     public function setFiscalProviderId($fiscal_provider_id)
     {
         $this->_fiscalProviderId = $fiscal_provider_id;
+
+        return $this;
     }
 
     /**
@@ -367,6 +454,7 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      *
      * @param ReceiptResponseItemInterface[] $value Список товаров в заказе
      *
+     * @return AbstractReceiptResponse
      * @throws EmptyPropertyValueException Выбрасывается если передали пустой массив значений
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве значения был передан не массив и не
      * итератор, лабо если одно из переданных значений не реализует интерфейс ReceiptItemInterface
@@ -391,17 +479,72 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
                 );
             }
         }
+
+        return $this;
     }
 
     /**
      * Добавляет товар в чек
      *
      * @param ReceiptResponseItemInterface $value Объект добавляемой в чек позиции
+     * @return AbstractReceiptResponse
      */
     public function addItem($value)
     {
         $this->_items[] = $value;
+
+        return $this;
     }
+
+    /**
+     * Возвращает Массив оплат, обеспечивающих выдачу товара
+     *
+     * @return SettlementInterface[]
+     */
+    public function getSettlements()
+    {
+        return $this->_settlements;
+    }
+
+    /**
+     * @param SettlementInterface[] $value
+     * @return AbstractReceiptResponse
+     */
+    public function setSettlements($value)
+    {
+        if ($value === null || $value === '') {
+            throw new EmptyPropertyValueException('Empty settlements value in receipt', 0, 'receipt.settlements');
+        }
+        if (!is_array($value) && !($value instanceof \Traversable)) {
+            throw new InvalidPropertyValueTypeException(
+                'Invalid settlements value type in receipt', 0, 'receipt.settlements', $value
+            );
+        }
+        $this->_settlements = array();
+        foreach ($value as $key => $val) {
+            if (is_object($val) && $val instanceof SettlementInterface) {
+                $this->addSettlement($val);
+            } else {
+                throw new InvalidPropertyValueTypeException(
+                    'Invalid settlement value type in receipt', 0, 'receipt.settlements['.$key.']', $val
+                );
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param SettlementInterface $value
+     * @return AbstractReceiptResponse
+     */
+    public function addSettlement(SettlementInterface $value)
+    {
+        $this->_settlements[] = $value;
+
+        return $this;
+    }
+
 
     /**
      * @return int
@@ -416,6 +559,7 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      *
      * @param int $value Код системы налогообложения. Число 1-6
      *
+     * @return AbstractReceiptResponse
      * @throws InvalidPropertyValueTypeException Выбрасывается если переданный аргумент - не число
      * @throws InvalidPropertyValueException Выбрасывается если переданный аргумент меньше одного или больше шести
      */
@@ -436,6 +580,8 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
             }
             $this->_taxSystemCode = $castedValue;
         }
+
+        return $this;
     }
 
     /**

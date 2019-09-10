@@ -251,11 +251,12 @@ class UserAgent
     private function parseSimpleLinuxRelease()
     {
         $vars = array();
-        $files = glob('/etc/*elease');
 
-        foreach ($files as $file) {
-            $data = array_map(array($this, 'callbackSimpleLinux'), file($file));
-            $vars = array_merge($vars, array_shift($data));
+        if ($files = glob('/etc/*elease')) {
+            foreach ($files as $file) {
+                $data = array_map(array($this, 'callbackSimpleLinux'), file($file));
+                $vars = array_merge($vars, array_shift($data));
+            }
         }
 
         return !empty($vars['name']) && !empty($vars['version']) ? $vars : null;
@@ -298,9 +299,9 @@ class UserAgent
      */
     public function createVersion($name, $version)
     {
-        return str_replace(array(' ', '/'), '.', trim($name))
+        return str_replace(array(self::PART_DELIMITER, self::VERSION_DELIMITER), '.', trim($name))
              . self::VERSION_DELIMITER
-             . trim($version);
+             . str_replace(array(self::PART_DELIMITER, self::VERSION_DELIMITER), '.', trim($version));
     }
 
 }

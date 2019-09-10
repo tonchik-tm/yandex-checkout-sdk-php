@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The MIT License
  *
@@ -24,33 +23,22 @@
  * THE SOFTWARE.
  */
 
-namespace YandexCheckout\Client;
+namespace YandexCheckout\Model\Receipt;
 
-use Psr\Log\LoggerInterface;
 
-/**
- * Interface ApiClientInterface
- * @package YandexCheckout\Client
- */
-interface ApiClientInterface
+use YandexCheckout\Common\AbstractEnum;
+
+class SettlementType extends AbstractEnum
 {
-    /**
-     * @param $path
-     * @param $method
-     * @param $queryParams
-     * @param $httpBody
-     * @param $headers
-     * @return mixed
-     */
-    public function call($path, $method, $queryParams, $httpBody = null, $headers = array());
+    const CASHLESS = 'cashless';
+    const PREPAYMENT = 'prepayment';
+    const POSTPAYMENT = 'postpayment';
+    const CONSIDERATION = 'consideration';
 
-    /**
-     * @param LoggerInterface|null $logger
-     */
-    public function setLogger($logger);
-
-    /**
-     * @return UserAgent
-     */
-    public function getUserAgent();
+    protected static $validValues = array(
+        self::CASHLESS      => true,
+        self::PREPAYMENT    => true,
+        self::POSTPAYMENT   => true,
+        self::CONSIDERATION => true,
+    );
 }

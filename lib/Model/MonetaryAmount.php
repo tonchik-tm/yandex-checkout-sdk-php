@@ -84,6 +84,7 @@ class MonetaryAmount extends AbstractObject implements AmountInterface
      * Устанавливает сумму
      * @param string $value Сумма
      *
+     * @return MonetaryAmount
      * @throws EmptyPropertyValueException Генерируется если было передано пустое значение
      * @throws InvalidPropertyValueTypeException Генерируется если было передано значение невалидного типа
      * @throws InvalidPropertyValueException Генерируется если было передано не валидное значение
@@ -104,6 +105,8 @@ class MonetaryAmount extends AbstractObject implements AmountInterface
             throw new InvalidPropertyValueException('Invalid amount value: "'.$value.'"', 0, 'amount.value', $value);
         }
         $this->_value = $castedValue;
+
+        return $this;
     }
 
     /**
@@ -128,6 +131,7 @@ class MonetaryAmount extends AbstractObject implements AmountInterface
      * Устанавливает код валюты
      * @param string $value Код валюты
      *
+     * @return MonetaryAmount
      * @throws EmptyPropertyValueException Генерируется если было передано пустое значение
      * @throws InvalidPropertyValueTypeException Генерируется если было передано значение невалидного типа
      * @throws InvalidPropertyValueException Генерируется если был передан неподдерживаемый код валюты
@@ -149,12 +153,15 @@ class MonetaryAmount extends AbstractObject implements AmountInterface
         } else {
             throw new InvalidPropertyValueTypeException('Invalid currency value type', 0, 'amount.currency', $value);
         }
+
+        return $this;
     }
 
     /**
      * Умножает текущую сумму на указанный коэффициент
      * @param float $coefficient Множитель
      *
+     * @return MonetaryAmount
      * @throws EmptyPropertyValueException Выбрасывается если передано пустое значение
      * @throws InvalidPropertyValueTypeException Выбрасывается если было передано не число
      * @throws InvalidPropertyValueException Выбрасывается если переданное значение меньше или равно нулю, либо если
@@ -182,12 +189,15 @@ class MonetaryAmount extends AbstractObject implements AmountInterface
             );
         }
         $this->_value = $castedValue;
+
+        return $this;
     }
 
     /**
      * Увеличивает сумму на указанное значение
      * @param int $value Значение которое будет прибавлено к текущему
      *
+     * @return MonetaryAmount
      * @throws EmptyPropertyValueException Выбрасывается если передано пустое значение
      * @throws InvalidPropertyValueTypeException Выбрасывается если было передано не число
      * @throws InvalidPropertyValueException Выбрасывается если после сложения получилась сумма меньше или равная нулю
@@ -209,6 +219,8 @@ class MonetaryAmount extends AbstractObject implements AmountInterface
             );
         }
         $this->_value = $castedValue;
+
+        return $this;
     }
 
     /**

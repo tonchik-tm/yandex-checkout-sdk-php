@@ -63,6 +63,17 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
     private $_inn;
 
     /**
+     * ReceiptCustomer constructor.
+     * @param null|array $data
+     */
+    public function __construct($data = null)
+    {
+        if (!empty($data) && is_array($data)) {
+            $this->fromArray($data);
+        }
+    }
+
+    /**
      * Возвращает для юрлица — название организации, для ИП и физического лица — ФИО
      * @return string Название организации или ФИО
      */
@@ -75,6 +86,8 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
      * Устанавливает Название организации или ФИО
      *
      * @param string $value Название организации или ФИО
+     *
+     * @return ReceiptCustomer
      *
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве значения была передана не строка
      */
@@ -91,6 +104,8 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
         } else {
             $this->_fullName = (string)$value;
         }
+
+        return $this;
     }
 
     /**
@@ -108,6 +123,8 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
      *
      * @param string $value Номер телефона плательщика в формате ITU-T E.164
      *
+     * @return ReceiptCustomer
+     *
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве значения была передана не строка
      * @throws InvalidPropertyValueException Выбрасывается если телефон не соответствует формату ITU-T E.164
      */
@@ -122,6 +139,8 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
         } else {
             $this->_phone = (string)$value;
         }
+
+        return $this;
     }
 
     /**
@@ -165,6 +184,8 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
      *
      * @param string $value ИНН плательщика (10 или 12 цифр)
      *
+     * @return ReceiptCustomer
+     *
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве значения была передана не строка
      * @throws InvalidPropertyValueException Выбрасывается если ИНН не соответствует формату 10 или 12 цифр
      */
@@ -179,6 +200,8 @@ class ReceiptCustomer extends AbstractObject implements ReceiptCustomerInterface
         } else {
             $this->_inn = (string)$value;
         }
+
+        return $this;
     }
 
     /**
