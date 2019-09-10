@@ -1364,9 +1364,10 @@ class ClientTest extends TestCase
             'phone' => '79000000000'
         ));
         $amount = new MonetaryAmount('10.00', CurrencyCode::RUB);
-        $settlement = (new Settlement())->setType(SettlementType::PREPAYMENT)->setAmount($amount);
-        $receiptItem = (new ReceiptItem())
-            ->setDescription('Товар номер Один')
+        $settlement = new Settlement();
+        $settlement->setType(SettlementType::PREPAYMENT)->setAmount($amount);
+        $receiptItem = new ReceiptItem();
+        $receiptItem->setDescription('Товар номер Один')
             ->setCountryOfOriginCode('RU')
             ->setQuantity(1)
             ->setPrice(new ReceiptItemAmount('10.00', CurrencyCode::RUB));
