@@ -137,7 +137,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param string $value Наименование товара
      *
-     * @return ReceiptItem
      * @throws EmptyPropertyValueException Выбрасывается если было передано пустое значение
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента была передана не строка
      */
@@ -160,8 +159,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
                 'Empty description value in ReceiptItem', 0, 'ReceiptItem.description', $value
             );
         }
-
-        return $this;
     }
 
     /**
@@ -178,7 +175,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param int $value Количество
      *
-     * @return ReceiptItem
      * @throws EmptyPropertyValueException Выбрасывается если было передано пустое значение
      * @throws InvalidPropertyValueException Выбрасывается если в качестве аргумента был передан ноль
      * или отрицательное число
@@ -199,8 +195,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_quantity = (float)$value;
         }
-
-        return $this;
     }
 
     /**
@@ -225,13 +219,10 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      * Устанавливает цену товара
      *
      * @param AmountInterface $value Цена товара
-     * @return ReceiptItem
      */
     public function setPrice(AmountInterface $value)
     {
         $this->_amount = $value;
-
-        return $this;
     }
 
     /**
@@ -248,7 +239,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param int $value Ставка НДС, число 1-6
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueException Выбрасывается если в качестве аргумента было передано число меньше одного
      * или больше шести
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента было передано не число
@@ -268,8 +258,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_vatCode = (int)$value;
         }
-
-        return $this;
     }
 
     /**
@@ -286,7 +274,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param string $value Признак предмета расчета
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента была передана не строка
      */
     public function setPaymentSubject($value)
@@ -298,8 +285,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_paymentSubject = $value;
         }
-
-        return $this;
     }
 
     /**
@@ -316,7 +301,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param string $value Признак способа расчета
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента была передана не строка
      */
     public function setPaymentMode($value)
@@ -330,8 +314,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_paymentMode = $value;
         }
-
-        return $this;
     }
 
     /**
@@ -348,7 +330,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param string $value Код товара
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента была передана не строка
      */
     public function setProductCode($value)
@@ -370,8 +351,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_productCode = $value;
         }
-
-        return $this;
     }
 
     /**
@@ -388,7 +367,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param string $value Код страны происхождения товара
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента была передана не строка
      */
     public function setCountryOfOriginCode($value)
@@ -410,8 +388,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_countryOfOriginCode = $value;
         }
-
-        return $this;
     }
 
     /**
@@ -428,7 +404,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param string $value Номер таможенной декларации
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента была передана не строка
      */
     public function setCustomsDeclarationNumber($value)
@@ -446,8 +421,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_customsDeclarationNumber = $value;
         }
-
-        return $this;
     }
 
     /**
@@ -464,7 +437,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      *
      * @param float $value Сумма акциза товара с учетом копеек
      *
-     * @return ReceiptItem
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве аргумента было передано не число
      */
     public function setExcise($value)
@@ -482,8 +454,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         } else {
             $this->_excise = $value;
         }
-
-        return $this;
     }
 
     /**
@@ -505,8 +475,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
                 'Invalid isShipping value in ReceiptItem', 0, 'ReceiptItem.isShipping', $value
             );
         }
-
-        return $this;
     }
 
     /**
@@ -542,8 +510,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
      * Уменьшает количество покупаемого товара на указанное, возвращает объект позиции в чеке с уменьшаемым количеством
      *
      * @param float $count Количество на которое уменьшаем позицию в чеке
-     *
-     * @return ReceiptItem Новый инстанс позиции в чеке
      *
      * @throws EmptyPropertyValueException Выбрасывается если было передано пустое значение
      * @throws InvalidPropertyValueException Выбрасывается если в качестве аргумента был передан ноль
@@ -581,7 +547,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
     /**
      * Устанавливает значения свойств текущего объекта из массива
      * @param array|\Traversable $sourceArray Ассоциативный массив с настройками
-     * @return ReceiptItem
      */
     public function fromArray($sourceArray)
     {
@@ -591,8 +556,6 @@ class ReceiptItem extends AbstractObject implements ReceiptItemInterface
         unset($sourceArray['amount']);
 
         parent::fromArray($sourceArray);
-
-        return $this;
     }
 
     /**

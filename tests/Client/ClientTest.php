@@ -1363,14 +1363,28 @@ class ClientTest extends TestCase
             'email' => 'johndoe@yandex.ru',
             'phone' => '79000000000'
         ));
-        $amount = new MonetaryAmount('10.00', CurrencyCode::RUB);
-        $settlement = new Settlement();
-        $settlement->setType(SettlementType::PREPAYMENT)->setAmount($amount);
-        $receiptItem = new ReceiptItem();
-        $receiptItem->setDescription('Товар номер Один')
-            ->setCountryOfOriginCode('RU')
-            ->setQuantity(1)
-            ->setPrice(new ReceiptItemAmount('10.00', CurrencyCode::RUB));
+        $settlement = new Settlement(array(
+            'type' => 'cashless',
+            'amount' => array(
+                'value' => '10.00',
+                'currency' => 'RUB'
+            )
+        ));
+        $receiptItem = new ReceiptItem(array(
+            'description' => 'string',
+            'quantity' => 1,
+            'amount' => array(
+                'value' => '10.00',
+                'currency' => 'RUB'
+            ),
+            'vat_code' => 1,
+            'payment_subject' => 'commodity',
+            'payment_mode' => 'full_prepayment',
+            'product_code' => '00 00 00 01 00 21 FA 41 00 23 05 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 12 00 AB 00',
+            'country_of_origin_code' => 'RU',
+            'customs_declaration_number' => '10714040/140917/0090376',
+            'excise' => '20.00'
+        ));
 
         return CreatePostReceiptRequest::builder()
             ->setCustomer($customer)

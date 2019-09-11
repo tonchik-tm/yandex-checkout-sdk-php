@@ -49,21 +49,22 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
     /** @var ReceiptCustomerInterface Информация о плательщике */
     private $_customer;
 
-    /** @var ReceiptItemInterface[] Список товаров в заказе */
-    private $_items = array();
-
-    /** @var int Код системы налогообложения. Число 1-6. */
-    private $_taxSystemCode;
-
     /** @var string Тип чека в онлайн-кассе: приход "payment" или возврат "refund". */
     private $_type;
 
     /** @var bool Признак отложенной отправки чека. */
     private $_send = true;
 
+    /** @var int Код системы налогообложения. Число 1-6. */
+    private $_taxSystemCode;
+
+    /** @var ReceiptItemInterface[] Список товаров в заказе */
+    private $_items = array();
+
     /** @var SettlementInterface[] Список платежей */
     private $_settlements = array();
 
+    /** @var string Идентификатор объекта оплаты */
     private $_object_id;
 
     /**

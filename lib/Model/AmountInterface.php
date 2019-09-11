@@ -44,7 +44,6 @@ interface AmountInterface
 
     /**
      * @param $value
-     * @return AmountInterface
      */
     public function setValue($value);
 
@@ -63,7 +62,6 @@ interface AmountInterface
     /**
      * Устанавливает код валюты
      * @param string $value Код валюты
-     * @return AmountInterface
      */
     public function setCurrency($value);
 }

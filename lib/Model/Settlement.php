@@ -81,7 +81,6 @@ class Settlement extends AbstractObject implements SettlementInterface
     /**
      * Устанавливает вид оплаты в чеке
      * @param string $value
-     * @return Settlement
      */
     public function setType($value)
     {
@@ -102,8 +101,6 @@ class Settlement extends AbstractObject implements SettlementInterface
                 'Invalid value type for "type" parameter in Settlement', 0, 'settlement.type', $value
             );
         }
-
-        return $this;
     }
 
     /**
@@ -118,7 +115,6 @@ class Settlement extends AbstractObject implements SettlementInterface
     /**
      * Устанавливает сумму платежа
      * @param AmountInterface|array $value Сумма платежа
-     * @return Settlement
      */
     public function setAmount($value)
     {
@@ -135,8 +131,6 @@ class Settlement extends AbstractObject implements SettlementInterface
                 'Invalid value type for "amount" parameter in Settlement', 0, 'settlement.amount', $value
             );
         }
-
-        return $this;
     }
 
     /**
