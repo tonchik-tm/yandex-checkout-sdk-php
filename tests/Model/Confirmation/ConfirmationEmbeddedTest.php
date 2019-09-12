@@ -8,6 +8,8 @@ use YandexCheckout\Model\Confirmation\AbstractConfirmation;
 use YandexCheckout\Model\Confirmation\ConfirmationEmbedded;
 use YandexCheckout\Model\ConfirmationType;
 
+require_once __DIR__ . '/AbstractConfirmationTest.php';
+
 class ConfirmationEmbeddedTest extends AbstractConfirmationTest
 {
 
