@@ -27,11 +27,7 @@
 namespace YandexCheckout\Request\Payments;
 
 use YandexCheckout\Model\AmountInterface;
-use YandexCheckout\Model\Confirmation\AbstractConfirmation;
-use YandexCheckout\Model\Confirmation\ConfirmationEmbedded;
-use YandexCheckout\Model\Confirmation\ConfirmationRedirect;
 use YandexCheckout\Model\ConfirmationAttributes\AbstractConfirmationAttributes;
-use YandexCheckout\Model\ConfirmationAttributes\ConfirmationAttributesEmbedded;
 use YandexCheckout\Model\ConfirmationAttributes\ConfirmationAttributesRedirect;
 use YandexCheckout\Model\ConfirmationType;
 use YandexCheckout\Model\LegInterface;
