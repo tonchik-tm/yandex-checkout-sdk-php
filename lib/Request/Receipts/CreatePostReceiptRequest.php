@@ -90,12 +90,10 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
      * Устанавливает Id объекта чека
      *
      * @param string $value
-     * @return CreatePostReceiptRequest
      */
     public function setObjectId($value)
     {
         $this->_object_id = $value;
-        return $this;
     }
 
     /**
@@ -120,8 +118,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
      * Устанавливает информацию о плательщике
      *
      * @param ReceiptCustomerInterface $value
-     *
-     * @return CreatePostReceiptRequest
      */
     public function setCustomer($value)
     {
@@ -134,8 +130,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
                 'Invalid customer value type in receipt', 0, 'Receipt.customer', $value
             );
         }
-
-        return $this;
     }
 
     /**
@@ -156,8 +150,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
      * ReceiptItemInterface, в противном случае будет выброшено исключение InvalidPropertyValueTypeException.
      *
      * @param ReceiptItemInterface[] $value Список товаров в заказе
-     *
-     * @return CreatePostReceiptRequest
      *
      * @throws EmptyPropertyValueException Выбрасывается если передали пустой массив значений
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве значения был передан не массив и не
@@ -185,20 +177,16 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
                 );
             }
         }
-        return $this;
     }
 
     /**
      * Добавляет товар в чек
      *
      * @param ReceiptItemInterface $value Объект добавляемой в чек позиции
-     * @return CreatePostReceiptRequest
      */
     public function addItem($value)
     {
         $this->_items[] = $value;
-
-        return $this;
     }
 
     /**
@@ -215,8 +203,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
      * Устанавливает код системы налогообложения
      *
      * @param int $value Код системы налогообложения. Число 1-6
-     *
-     * @return CreatePostReceiptRequest
      *
      * @throws InvalidPropertyValueTypeException Выбрасывается если переданный аргумент - не число
      * @throws InvalidPropertyValueException Выбрасывается если переданный аргумент меньше одного или больше шести
@@ -238,8 +224,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
             }
             $this->_taxSystemCode = $castedValue;
         }
-
-        return $this;
     }
 
     /**
@@ -256,7 +240,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
      * Устанавливает тип чека в онлайн-кассе
      *
      * @param string $value Тип чека в онлайн-кассе: приход "payment" или возврат "refund".
-     * @return $this
      */
     public function setType($value)
     {
@@ -270,8 +253,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
                 'Invalid receipt type value type', 0, 'Receipt.type', $value
             );
         }
-
-        return $this;
     }
 
     /**
@@ -287,7 +268,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
     /**
      * Устанавливает признак отложенной отправки чека.
      * @param bool $value Признак отложенной отправки чека.
-     * @return $this
      */
     public function setSend($value)
     {
@@ -298,8 +278,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
                 'Invalid receipt type value send', 0, 'Receipt.send', $value
             );
         }
-
-        return $this;
     }
 
     /**
@@ -316,7 +294,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
      * Устанавливает массив оплат, обеспечивающих выдачу товара.
      *
      * @param SettlementInterface[] $value Массив оплат, обеспечивающих выдачу товара.
-     * @return $this
      */
     public function setSettlements($value)
     {
@@ -340,21 +317,16 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
                 );
             }
         }
-
-        return $this;
     }
 
     /**
      * Добавляет оплату в перечень совершенных расчетов.
      *
      * @param SettlementInterface $value Информация о совершенных расчетах.
-     * @return CreatePostReceiptRequest
      */
     public function addSettlement(SettlementInterface $value)
     {
         $this->_settlements[] = $value;
-
-        return $this;
     }
 
     /**
@@ -370,7 +342,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
     /**
      * Устанавливает значения свойств текущего объекта из массива
      * @param array|\Traversable $sourceArray Ассоциативный массив с настройками
-     * @return CreatePostReceiptRequest
      */
     public function fromArray($sourceArray)
     {
@@ -395,8 +366,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
         }
 
         parent::fromArray($sourceArray);
-
-        return $this;
     }
 
     /**
