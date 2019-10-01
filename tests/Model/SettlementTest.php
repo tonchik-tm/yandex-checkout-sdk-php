@@ -78,7 +78,7 @@ class SettlementTest extends TestCase
             $result[] = array(
                 'type' => Random::value(SettlementType::getValidValues()),
                 'amount' => array(
-                    'value' => round(Random::float(0.1, 99.99), 2),
+                    'value' => (string)round(Random::float(0.1, 99.99), 2),
                     'currency' => Random::value(CurrencyCode::getValidValues())
                 )
             );

@@ -5,6 +5,7 @@ namespace Tests\YandexCheckout\Model\Confirmation;
 use YandexCheckout\Model\Confirmation\ConfirmationExternal;
 use YandexCheckout\Model\ConfirmationType;
 
+
 class ConfirmationExternalTest extends AbstractConfirmationTest
 {
     /**

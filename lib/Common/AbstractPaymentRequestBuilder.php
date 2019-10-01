@@ -254,8 +254,9 @@ abstract class AbstractPaymentRequestBuilder extends AbstractRequestBuilder
      * Устанавливает телефон получателя чека
      *
      * @param string $value Телефон получателя чека
-     *
      * @return self Инстанс билдера запросов
+     *
+     * @throws InvalidPropertyValueTypeException Выбрасывается если телефон не соответствует формату ITU-T E.164
      */
     public function setReceiptPhone($value)
     {
