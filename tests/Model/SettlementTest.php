@@ -82,7 +82,7 @@ class SettlementTest extends TestCase
             $result[] = array(
                 'type' => Random::value(SettlementType::getValidValues()),
                 'amount' => array(
-                    'value' => sprintf(round('%.2f',Random::float(0.1, 99.99), 2)),
+                    'value' => sprintf('%.2f', round(Random::float(0.1, 99.99), 2)),
                     'currency' => Random::value(CurrencyCode::getValidValues())
                 )
             );
