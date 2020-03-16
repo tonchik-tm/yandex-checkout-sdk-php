@@ -26,10 +26,13 @@
 namespace YandexCheckout\Client;
 
 
+use Exception;
 use Psr\Log\LoggerInterface;
+use YandexCheckout\Common\Exceptions\ApiConnectionException;
 use YandexCheckout\Common\Exceptions\ApiException;
 use YandexCheckout\Common\Exceptions\AuthorizeException;
 use YandexCheckout\Common\Exceptions\BadApiRequestException;
+use YandexCheckout\Common\Exceptions\ExtensionNotFoundException;
 use YandexCheckout\Common\Exceptions\ForbiddenException;
 use YandexCheckout\Common\Exceptions\InternalServerError;
 use YandexCheckout\Common\Exceptions\JsonException;
@@ -256,7 +259,7 @@ class BaseClient
      * @param $serializedData
      *
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     protected function encodeData($serializedData)
     {
@@ -362,15 +365,18 @@ class BaseClient
      * @param null $httpBody
      * @param array $headers
      *
-     * @return ResponseObject
+     * @return mixed|ResponseObject
+     * @throws ApiException
      * @throws AuthorizeException
+     * @throws ApiConnectionException
+     * @throws ExtensionNotFoundException
      */
     protected function execute($path, $method, $queryParams, $httpBody = null, $headers = array())
     {
         $attempts = $this->attempts;
         $response = $this->apiClient->call($path, $method, $queryParams, $httpBody, $headers);
 
-        while ($response->getCode() == 202 && $attempts > 0) {
+        while (in_array($response->getCode(), array(202, 500)) && $attempts > 0) {
             $this->delay($response);
             $attempts--;
             $response = $this->apiClient->call($path, $method, $queryParams, $httpBody, $headers);

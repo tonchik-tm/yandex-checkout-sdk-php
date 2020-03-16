@@ -49,8 +49,12 @@ abstract class AbstractPaymentResponseTest extends TestCase
         if (empty($options['recipient'])) {
             self::assertNull($instance->getRecipient());
         } else {
-            self::assertEquals($options['recipient']['account_id'], $instance->getRecipient()->getAccountId());
-            self::assertEquals($options['recipient']['gateway_id'], $instance->getRecipient()->getGatewayId());
+            if (!empty($options['recipient']['account_id'])) {
+                self::assertEquals($options['recipient']['account_id'], $instance->getRecipient()->getAccountId());
+            }
+            if (!empty($options['recipient']['gateway_id'])) {
+                self::assertEquals($options['recipient']['gateway_id'], $instance->getRecipient()->getGatewayId());
+            }
         }
     }
 
@@ -186,7 +190,7 @@ abstract class AbstractPaymentResponseTest extends TestCase
     {
         $instance = $this->getTestInstance($options);
         if (empty($options['receipt_registration'])) {
-            self::assertFalse($instance->getReceiptRegistration());
+            self::assertNull($instance->getReceiptRegistration());
         } else {
             self::assertEquals($options['receipt_registration'], $instance->getReceiptRegistration());
         }
@@ -200,7 +204,7 @@ abstract class AbstractPaymentResponseTest extends TestCase
     {
         $instance = $this->getTestInstance($options);
         if (empty($options['metadata'])) {
-            self::assertFalse($instance->getMetadata());
+            self::assertNull($instance->getMetadata());
         } else {
             self::assertEquals($options['metadata'], $instance->getMetadata()->toArray());
         }
@@ -235,10 +239,10 @@ abstract class AbstractPaymentResponseTest extends TestCase
                 ),
                 'amount' => array(
                     'value' => Random::float(0.01, 1000000.0),
-                    'currency' => Random::value(CurrencyCode::getValidValues()),
+                    'currency' => Random::value(CurrencyCode::getEnabledValues()),
                 ),
                 'payment_method' => array(
-                    'type' => PaymentMethodType::QIWI,
+                    'type' => Random::value(PaymentMethodType::getEnabledValues()),
                 ),
                 'created_at' => date(DATE_ATOM, Random::int(1, time())),
                 'captured_at' => date(DATE_ATOM, Random::int(1, time())),
@@ -263,6 +267,38 @@ abstract class AbstractPaymentResponseTest extends TestCase
             );
             $result[] = array($payment);
         }
+
+        $trueFalse = Random::bool();
+        $result[] = array(
+            array(
+                'id' => Random::str(36),
+                'status' => Random::value($statuses),
+                'description' => Random::str(128),
+                'recipient' => array(
+                    'account_id' => Random::str(1, 64, '0123456789'),
+                    'gateway_id' => Random::str(1, 256),
+                ),
+                'amount' => array(
+                    'value' => Random::float(0.01, 1000000.0),
+                    'currency' => Random::value(CurrencyCode::getValidValues()),
+                ),
+                'payment_method' => array(
+                    'type' => PaymentMethodType::WECHAT,
+                ),
+                'created_at' => date(DATE_ATOM, Random::int(1, time())),
+                'captured_at' => date(DATE_ATOM, Random::int(1, time())),
+                'expires_at' => date(DATE_ATOM, Random::int(1, time())),
+                'confirmation' => array(
+                    'type' => 'qr',
+                    'confirmation_data' => 'weixin://wxpay/bizpayurl?pr=SqTE9cX'
+                ),
+                'paid' => $trueFalse,
+                'refundable' => $trueFalse,
+                'test' => $trueFalse,
+                'metadata' => array(),
+            )
+        );
+
         return $result;
     }
 

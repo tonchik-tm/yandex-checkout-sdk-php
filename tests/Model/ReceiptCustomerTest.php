@@ -20,9 +20,9 @@ class ReceiptCustomerTest extends TestCase
         self::assertNull($instance->getPhone());
         self::assertNull($instance->phone);
 
-        $value = $options['customer']['phone']
+        $value = !empty($options['customer']['phone'])
                ? $options['customer']['phone']
-               : ($options['phone'] ? $options['phone'] : null);
+               : (!empty($options['phone']) ? $options['phone'] : null);
 
         $instance->setPhone($value);
         if ($value === null || $value === '') {
@@ -45,9 +45,9 @@ class ReceiptCustomerTest extends TestCase
         self::assertNull($instance->getPhone());
         self::assertNull($instance->phone);
 
-        $value = $options['customer']['phone']
+        $value = !empty($options['customer']['phone'])
                ? $options['customer']['phone']
-               : ($options['phone'] ? $options['phone'] : null);
+               : (!empty($options['phone']) ? $options['phone'] : null);
 
         $instance->phone = $value;
         if ($value === null || $value === '') {
@@ -74,13 +74,9 @@ class ReceiptCustomerTest extends TestCase
     {
         return array(
             array(new \stdClass()),
-            array('invalid_value'),
-            array(324),
-            array(0),
+            array(array()),
             array(true),
             array(false),
-            array(1.43),
-            array(7),
         );
     }
 
@@ -95,9 +91,9 @@ class ReceiptCustomerTest extends TestCase
         self::assertNull($instance->getEmail());
         self::assertNull($instance->email);
 
-        $value = $options['customer']['email']
+        $value = !empty($options['customer']['email'])
                ? $options['customer']['email']
-               : ($options['email'] ? $options['email'] : null);
+               : (!empty($options['email']) ? $options['email'] : null);
 
         $instance->setEmail($value);
         if ($value === null || $value === '') {
@@ -120,9 +116,9 @@ class ReceiptCustomerTest extends TestCase
         self::assertNull($instance->getEmail());
         self::assertNull($instance->email);
 
-        $value = $options['customer']['email']
+        $value = !empty($options['customer']['email'])
                ? $options['customer']['email']
-               : ($options['email'] ? $options['email'] : null);
+               : (!empty($options['email']) ? $options['email'] : null);
 
         $instance->email = $value;
         if ($value === null || $value === '') {

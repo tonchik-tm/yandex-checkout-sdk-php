@@ -11,8 +11,6 @@ use YandexCheckout\Model\PaymentData\B2b\Sberbank\VatDataType;
 use YandexCheckout\Model\PaymentData\PaymentDataB2bSberbank;
 use YandexCheckout\Model\PaymentMethodType;
 
-require_once __DIR__.'/AbstractPaymentDataTest.php';
-
 class PaymentDataB2bSberbankTest extends AbstractPaymentDataTest
 {
     /**
@@ -154,8 +152,14 @@ class PaymentDataB2bSberbankTest extends AbstractPaymentDataTest
             ),
             array(
                 array(
+                    'type'   => VatDataType::MIXED,
+                    'amount' => new MonetaryAmount(Random::int(1, 10000), CurrencyCode::EUR),
+                )
+            ),
+            array(
+                array(
                     'type'   => VatDataType::CALCULATED,
-                    'rate'   => VatDataRate::RATE_10,
+                    'rate'   => VatDataRate::RATE_20,
                     'amount' => array(
                         'value'    => Random::int(1, 10000),
                         'currency' => CurrencyCode::USD,

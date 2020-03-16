@@ -39,6 +39,8 @@ use YandexCheckout\Helpers\TypeCast;
  */
 class RefundReceiptResponse extends AbstractReceiptResponse
 {
+    const LENGTH_REFUND_ID = 36;
+
     private $_refund_id;
 
     /**
@@ -50,7 +52,7 @@ class RefundReceiptResponse extends AbstractReceiptResponse
      */
     public function setSpecificProperties($receiptData)
     {
-        $this->setRefundId($receiptData['refund_id']);
+        $this->setRefundId($this->getObjectId());
     }
 
     /**

@@ -30,7 +30,7 @@ use Psr\Log\LoggerInterface;
 use YandexCheckout\Common\Exceptions\ApiConnectionException;
 use YandexCheckout\Common\Exceptions\ApiException;
 use YandexCheckout\Common\Exceptions\AuthorizeException;
-use YandexCheckout\Common\HttpVerb;
+use YandexCheckout\Common\Exceptions\ExtensionNotFoundException;
 use YandexCheckout\Common\ResponseObject;
 use YandexCheckout\Helpers\RawHeadersParser;
 
@@ -75,6 +75,9 @@ class CurlClient implements ApiClientInterface
      */
     private $proxy;
 
+    /** @var UserAgent */
+    private $userAgent;
+
     /**
      * @var bool
      */
@@ -99,6 +102,14 @@ class CurlClient implements ApiClientInterface
     private $logger;
 
     /**
+     * CurlClient constructor.
+     */
+    public function __construct()
+    {
+        $this->userAgent = new UserAgent();
+    }
+
+    /**
      * @param LoggerInterface|null $logger
      */
     public function setLogger($logger)
@@ -119,14 +130,15 @@ class CurlClient implements ApiClientInterface
      * @throws ApiConnectionException
      * @throws ApiException
      * @throws AuthorizeException
+     * @throws ExtensionNotFoundException
      */
     public function call($path, $method, $queryParams, $httpBody = null, $headers = array())
     {
+        $headers = $this->prepareHeaders($headers);
+
         $this->logRequestParams($path, $method, $queryParams, $httpBody, $headers);
 
         $url = $this->prepareUrl($path, $queryParams);
-
-        $headers = $this->prepareHeaders($headers);
 
         $this->prepareCurl($method, $httpBody, $headers, $url);
 
@@ -159,9 +171,14 @@ class CurlClient implements ApiClientInterface
 
     /**
      * @return resource
+     * @throws ExtensionNotFoundException
      */
     private function initCurl()
     {
+        if (!extension_loaded('curl')) {
+            throw new ExtensionNotFoundException('curl');
+        }
+
         if (!$this->curl || !$this->keepAlive) {
             $this->curl = curl_init();
         }
@@ -304,6 +321,14 @@ class CurlClient implements ApiClientInterface
     }
 
     /**
+     * @return UserAgent
+     */
+    public function getUserAgent()
+    {
+        return $this->userAgent;
+    }
+
+    /**
      * @param string $bearerToken
      *
      * @return static $this
@@ -339,14 +364,14 @@ class CurlClient implements ApiClientInterface
             case CURLE_COULDNT_CONNECT:
             case CURLE_COULDNT_RESOLVE_HOST:
             case CURLE_OPERATION_TIMEOUTED:
-                $msg = "Could not connect to Yandex Money API. Please check your internet connection and try again.";
+                $msg = 'Could not connect to Yandex Money API. Please check your internet connection and try again.';
                 break;
             case CURLE_SSL_CACERT:
             case CURLE_SSL_PEER_CERTIFICATE:
-                $msg = "Could not verify SSL certificate.";
+                $msg = 'Could not verify SSL certificate.';
                 break;
             default:
-                $msg = "Unexpected error communicating.";
+                $msg = 'Unexpected error communicating.';
         }
         $msg .= "\n\n(Network error [errno $errno]: $error)";
         throw new ApiConnectionException($msg);
@@ -372,11 +397,13 @@ class CurlClient implements ApiClientInterface
     {
         $headers = array_merge($this->defaultHeaders, $headers);
 
+        $headers[UserAgent::HEADER] = $this->getUserAgent()->getHeaderString();
+
         if ($this->shopId && $this->shopPassword) {
-            $encodedAuth              = base64_encode($this->shopId.":".$this->shopPassword);
-            $headers["Authorization"] = "Basic ".$encodedAuth;
+            $encodedAuth = base64_encode($this->shopId . ':' . $this->shopPassword);
+            $headers['Authorization'] = 'Basic ' . $encodedAuth;
         } else if ($this->bearerToken) {
-            $headers["Authorization"] = 'Bearer '.$this->bearerToken;
+            $headers['Authorization'] = 'Bearer ' . $this->bearerToken;
         }
 
         if (empty($headers['Authorization'])) {
@@ -384,7 +411,7 @@ class CurlClient implements ApiClientInterface
         }
 
         $headers = array_map(function ($key, $value) {
-            return $key.":".$value;
+            return $key . ":" . $value;
         }, array_keys($headers), $headers);
 
 
@@ -401,17 +428,22 @@ class CurlClient implements ApiClientInterface
     private function logRequestParams($path, $method, $queryParams, $httpBody, $headers)
     {
         if ($this->logger !== null) {
-            $message = 'Send request: '.$method.' '.$path;
+            $message = 'Send request: ' . $method . ' ' . $path;
+            $context = array();
             if (!empty($queryParams)) {
-                $message .= ' with query params: '.json_encode($queryParams);
+                $context['_params'] = $queryParams;
             }
             if (!empty($httpBody)) {
-                $message .= ' with body: '.$httpBody;
+                $data = json_decode($httpBody, true);
+                if (JSON_ERROR_NONE !== json_last_error()) {
+                    $data = $httpBody;
+                }
+                $context['_body'] = $data;
             }
             if (!empty($headers)) {
-                $message .= ' with headers: '.json_encode($headers);
+                $context['_headers'] = $headers;
             }
-            $this->logger->info($message);
+            $this->logger->info($message, $context);
         }
     }
 
@@ -423,10 +455,10 @@ class CurlClient implements ApiClientInterface
      */
     private function prepareUrl($path, $queryParams)
     {
-        $url = $this->getUrl().$path;
+        $url = $this->getUrl() . $path;
 
         if (!empty($queryParams)) {
-            $url = $url.'?'.http_build_query($queryParams);
+            $url = $url . '?' . http_build_query($queryParams);
         }
 
         return $url;
@@ -440,12 +472,19 @@ class CurlClient implements ApiClientInterface
     private function logResponse($httpBody, $responseInfo, $httpHeaders)
     {
         if ($this->logger !== null) {
-            $message = 'Response with code '.$responseInfo['http_code'].' received with headers: '
-                       .json_encode($httpHeaders);
+            $message = 'Response with code ' . $responseInfo['http_code'] . ' received.';
+            $context = array();
             if (!empty($httpBody)) {
-                $message .= ' and body: '.$httpBody;
+                $data = json_decode($httpBody, true);
+                if (JSON_ERROR_NONE !== json_last_error()) {
+                    $data = $httpBody;
+                }
+                $context['_body'] = $data;
             }
-            $this->logger->info($message);
+            if (!empty($httpHeaders)) {
+                $context['_headers'] = $httpHeaders;
+            }
+            $this->logger->info($message, $context);
         }
     }
 
@@ -454,6 +493,7 @@ class CurlClient implements ApiClientInterface
      * @param $httpBody
      * @param $headers
      * @param $url
+     * @throws ExtensionNotFoundException
      */
     private function prepareCurl($method, $httpBody, $headers, $url)
     {

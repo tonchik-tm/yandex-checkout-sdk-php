@@ -1,5 +1,11 @@
 # The Yandex.Checkout API PHP Client Library
 
+[![Build Status](https://travis-ci.org/yandex-money/yandex-checkout-sdk-php.svg?branch=master)](https://travis-ci.org/yandex-money/yandex-checkout-sdk-php)
+[![Latest Stable Version](https://poser.pugx.org/yandex-money/yandex-checkout-sdk-php/v/stable)](https://packagist.org/packages/yandex-money/yandex-checkout-sdk-php)
+[![Total Downloads](https://poser.pugx.org/yandex-money/yandex-checkout-sdk-php/downloads)](https://packagist.org/packages/yandex-money/yandex-checkout-sdk-php)
+[![Monthly Downloads](https://poser.pugx.org/yandex-money/yandex-checkout-sdk-php/d/monthly)](https://packagist.org/packages/yandex-money/yandex-checkout-sdk-php)
+[![License](https://poser.pugx.org/yandex-money/yandex-checkout-sdk-php/license)](https://packagist.org/packages/yandex-money/yandex-checkout-sdk-php)
+
 [Russian](https://github.com/yandex-money/yandex-checkout-sdk-php/blob/master/README.md) | English
 
 This product is used for managing payments under [The Yandex.Checkout API](https://kassa.yandex.ru/docs/checkout-api/)
@@ -23,7 +29,7 @@ composer require yandex-money/yandex-checkout-sdk-php
 ...
    "require": {
         "php": ">=5.3.2",
-	    "yandex-money/yandex-checkout-sdk-php": "*"
+        "yandex-money/yandex-checkout-sdk-php": "*"
 ...
 ```
 2. Refresh the project's dependencies. In the console, navigate to the catalog with composer.json and run the following command:
@@ -54,4 +60,4 @@ use YandexCheckout\Client;
 $client = new Client();
 $client->setAuth('shopId', 'secretKey');
 ```
-3. Call the required API method. [More details in our documentation for the Yandex.Chechout API](https://checkout.yandex.com/docs/checkout-api/)
+3. Call the required API method. [More details in our documentation for the Yandex.Chechout API](https://checkout.yandex.com/developers/api#create_payment)
