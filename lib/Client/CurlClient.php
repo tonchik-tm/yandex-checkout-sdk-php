@@ -429,16 +429,21 @@ class CurlClient implements ApiClientInterface
     {
         if ($this->logger !== null) {
             $message = 'Send request: ' . $method . ' ' . $path;
+            $context = array();
             if (!empty($queryParams)) {
-                $message .= ' with query params: ' . json_encode($queryParams);
+                $context['_params'] = $queryParams;
             }
             if (!empty($httpBody)) {
-                $message .= ' with body: ' . $httpBody;
+                $data = json_decode($httpBody, true);
+                if (JSON_ERROR_NONE !== json_last_error()) {
+                    $data = $httpBody;
+                }
+                $context['_body'] = $data;
             }
             if (!empty($headers)) {
-                $message .= ' with headers: ' . json_encode($headers);
+                $context['_headers'] = $headers;
             }
-            $this->logger->info($message);
+            $this->logger->info($message, $context);
         }
     }
 
@@ -467,12 +472,19 @@ class CurlClient implements ApiClientInterface
     private function logResponse($httpBody, $responseInfo, $httpHeaders)
     {
         if ($this->logger !== null) {
-            $message = 'Response with code ' . $responseInfo['http_code'] . ' received with headers: '
-                     . json_encode($httpHeaders);
+            $message = 'Response with code ' . $responseInfo['http_code'] . ' received.';
+            $context = array();
             if (!empty($httpBody)) {
-                $message .= ' and body: ' . $httpBody;
+                $data = json_decode($httpBody, true);
+                if (JSON_ERROR_NONE !== json_last_error()) {
+                    $data = $httpBody;
+                }
+                $context['_body'] = $data;
             }
-            $this->logger->info($message);
+            if (!empty($httpHeaders)) {
+                $context['_headers'] = $httpHeaders;
+            }
+            $this->logger->info($message, $context);
         }
     }
 
