@@ -37,14 +37,18 @@ class PaymentsRequestSerializer
      * @var array Карта маппинга свойств объекта запроса на поля отправляемого запроса
      */
     private static $propertyMap = array(
-        'page'               => 'page',
         'createdAtGte'       => 'created_at.gte',
         'createdAtGt'        => 'created_at.gt',
         'createdAtLte'       => 'created_at.lte',
         'createdAtLt'        => 'created_at.lt',
-        'limit'              => 'limit',
-        'recipientGatewayId' => 'recipient.gateway_id',
+        'capturedAtGte'      => 'captured_at.gte',
+        'capturedAtGt'       => 'captured_at.gt',
+        'capturedAtLte'      => 'captured_at.lte',
+        'capturedAtLt'       => 'captured_at.lt',
         'status'             => 'status',
+        'paymentMethod'      => 'payment_method',
+        'limit'              => 'limit',
+        'cursor'             => 'cursor',
     );
 
     /**

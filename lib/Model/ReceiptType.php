@@ -34,21 +34,22 @@ use YandexCheckout\Common\AbstractEnum;
  * --- | ---
  * |payment|Приход|
  * |refund|Возврат|
+ * |simple|Простой|
  */
 class ReceiptType extends AbstractEnum
 {
-    /**
-     * @var string Тип чека: приход
-     */
+    /** @var string Тип чека: приход */
     const PAYMENT = 'payment';
 
-    /**
-     * @var string Тип чека: возврат
-     */
+    /** @var string Тип чека: возврат */
     const REFUND  = 'refund';
+
+    /** @var string Тип чека: простой */
+    const SIMPLE  = 'simple';
 
     protected static $validValues = array(
         self::PAYMENT => true,
         self::REFUND  => true,
+        self::SIMPLE  => true,
     );
 }

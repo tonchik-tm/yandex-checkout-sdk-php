@@ -39,6 +39,8 @@ use YandexCheckout\Model\ReceiptItemInterface;
 use YandexCheckout\Model\ReceiptType;
 use YandexCheckout\Model\Settlement;
 use YandexCheckout\Model\SettlementInterface;
+use YandexCheckout\Model\Supplier;
+use YandexCheckout\Model\SupplierInterface;
 
 /**
  * Class AbstractPostReceiptRequest
@@ -66,6 +68,9 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
 
     /** @var string Идентификатор объекта оплаты */
     private $_object_id;
+
+    /** @var string Идентификатор магазина в Яндекс.Кассе */
+    private $_onBehalfOf;
 
     /**
      * Возвращает билдер объектов запросов создания платежа
@@ -330,6 +335,32 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
     }
 
     /**
+     * @return string
+     */
+    public function getOnBehalfOf()
+    {
+        return $this->_onBehalfOf;
+    }
+
+    /**
+     * @param string $value
+     */
+    public function setOnBehalfOf($value)
+    {
+        if ($value === null || $value === '') {
+            throw new EmptyPropertyValueException(
+                'Empty onBehalfOf value', 0, 'Receipt.onBehalfOf'
+            );
+        } elseif (!TypeCast::canCastToString($value)) {
+            throw new InvalidPropertyValueTypeException(
+                'Invalid onBehalfOf value type', 0, 'Receipt.onBehalfOf', $value
+            );
+        } else {
+            $this->_onBehalfOf = (string)$value;
+        }
+    }
+
+    /**
      * Проверяет есть ли в чеке хотя бы одна позиция товаров и оплат
      *
      * @return bool True если чек не пуст, false если в чеке нет ни одной позиции
@@ -396,11 +427,6 @@ class CreatePostReceiptRequest extends AbstractRequest implements CreatePostRece
 
         if (empty($this->_items)) {
             $this->setValidationError('Receipt items not specified');
-            return false;
-        }
-
-        if (!$this->getObjectId()) {
-            $this->setValidationError('Receipt object_id not specified');
             return false;
         }
 

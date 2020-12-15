@@ -61,6 +61,7 @@ use YandexCheckout\Model\SettlementInterface;
  * @property int $tax_system_code Код системы налогообложения. Число 1-6.
  * @property ReceiptResponseItemInterface[] $items Список товаров в заказе
  * @property SettlementInterface[] $settlements Перечень совершенных расчетов.
+ * @property string $onBehalfOf Идентификатор магазина
  */
 abstract class AbstractReceiptResponse extends AbstractObject implements ReceiptResponseInterface
 {
@@ -107,6 +108,9 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
 
     /** @var int Код системы налогообложения. Число 1-6. */
     private $_taxSystemCode;
+
+    /** @var string Идентификатор магазина */
+    private $_onBehalfOf;
 
     /**
      * AbstractReceiptResponse constructor.
@@ -162,6 +166,9 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
             } else {
                 throw new EmptyPropertyValueException('Empty settlements value in receipt', 0, 'receipt.settlements');
             }
+        }
+        if (!empty($receiptData['on_behalf_of'])) {
+            $this->setOnBehalfOf($receiptData['on_behalf_of']);
         }
 
         $this->setSpecificProperties($receiptData);
@@ -239,7 +246,9 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      */
     public function setObjectId($value)
     {
-        if (TypeCast::canCastToString($value)) {
+        if ($value === null || $value === '') {
+            $this->_object_id = null;
+        } elseif (TypeCast::canCastToString($value)) {
             $this->_object_id = (string)$value;
         } else {
             throw new InvalidPropertyValueTypeException('Invalid receipt object_id type', 0, 'Receipt.object_id', $value);
@@ -254,10 +263,10 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
      */
     private function factoryObjectId($receiptData)
     {
-        if ($receiptData['type'] === ReceiptType::PAYMENT) {
-            return $receiptData['payment_id'];
-        } elseif ($receiptData['type'] === ReceiptType::REFUND) {
+        if (array_key_exists('refund_id', $receiptData)) {
             return $receiptData['refund_id'];
+        } elseif (array_key_exists('payment_id', $receiptData)) {
+            return $receiptData['payment_id'];
         }
         return null;
     }
@@ -296,6 +305,7 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
                 'Invalid status value type', 0, 'Receipt.status', $value
             );
         }
+        return $this;
     }
 
     /**
@@ -540,6 +550,32 @@ abstract class AbstractReceiptResponse extends AbstractObject implements Receipt
                 );
             }
             $this->_taxSystemCode = $castedValue;
+        }
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOnBehalfOf()
+    {
+        return $this->_onBehalfOf;
+    }
+
+    /**
+     * @param string $value
+     */
+    public function setOnBehalfOf($value)
+    {
+        if ($value === null || $value === '') {
+            throw new EmptyPropertyValueException(
+                'Empty onBehalfOf value', 0, 'Receipt.onBehalfOf'
+            );
+        } elseif (!TypeCast::canCastToString($value)) {
+            throw new InvalidPropertyValueTypeException(
+                'Invalid onBehalfOf value type', 0, 'Receipt.onBehalfOf', $value
+            );
+        } else {
+            $this->_onBehalfOf = (string)$value;
         }
     }
 

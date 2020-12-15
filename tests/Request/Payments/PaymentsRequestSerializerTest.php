@@ -3,6 +3,7 @@
 namespace Tests\YandexCheckout\Request\Payments;
 
 use PHPUnit\Framework\TestCase;
+use YandexCheckout\Model\PaymentMethodType;
 use YandexCheckout\Model\PaymentStatus;
 use YandexCheckout\Request\Payments\PaymentsRequest;
 use YandexCheckout\Request\Payments\PaymentsRequestSerializer;
@@ -10,14 +11,18 @@ use YandexCheckout\Request\Payments\PaymentsRequestSerializer;
 class PaymentsRequestSerializerTest extends TestCase
 {
     private $fieldMap = array(
-        'page'               => 'page',
         'createdAtGte'       => 'created_at.gte',
         'createdAtGt'        => 'created_at.gt',
         'createdAtLte'       => 'created_at.lte',
         'createdAtLt'        => 'created_at.lt',
-        'limit'              => 'limit',
-        'recipientGatewayId' => 'recipient.gateway_id',
+        'capturedAtGte'      => 'captured_at.gte',
+        'capturedAtGt'       => 'captured_at.gt',
+        'capturedAtLte'      => 'captured_at.lte',
+        'capturedAtLt'       => 'captured_at.lt',
         'status'             => 'status',
+        'paymentMethod'      => 'payment_method',
+        'limit'              => 'limit',
+        'cursor'             => 'cursor',
     );
 
     /**
@@ -49,28 +54,37 @@ class PaymentsRequestSerializerTest extends TestCase
             ),
             array(
                 array(
-                    'page'               => '',
                     'createdAtGte'       => '',
                     'createdAtGt'        => '',
                     'createdAtLte'       => '',
                     'createdAtLt'        => '',
-                    'limit'              => 0,
-                    'recipientGatewayId' => '',
+                    'capturedAtGte'      => '',
+                    'capturedAtGt'       => '',
+                    'capturedAtLte'      => '',
+                    'capturedAtLt'       => '',
+                    'paymentMethod'      => '',
                     'status'             => '',
+                    'limit'              => 0,
+                    'cursor'             => '',
                 ),
             ),
         );
         $statuses = PaymentStatus::getValidValues();
+        $methods  = PaymentMethodType::getValidValues();
         for ($i = 0; $i < 10; $i++) {
             $request  = array(
-                'page'               => $this->randomString(mt_rand(1, 30)),
                 'createdAtGte'       => date(DATE_ATOM, mt_rand(1, time())),
                 'createdAtGt'        => date(DATE_ATOM, mt_rand(1, time())),
                 'createdAtLte'       => date(DATE_ATOM, mt_rand(1, time())),
                 'createdAtLt'        => date(DATE_ATOM, mt_rand(1, time())),
-                'limit'              => mt_rand(1, 100),
-                'recipientGatewayId' => $this->randomString(mt_rand(1, 10)),
+                'capturedAtGte'      => date(DATE_ATOM, mt_rand(1, time())),
+                'capturedAtGt'       => date(DATE_ATOM, mt_rand(1, time())),
+                'capturedAtLte'      => date(DATE_ATOM, mt_rand(1, time())),
+                'capturedAtLt'       => date(DATE_ATOM, mt_rand(1, time())),
+                'paymentMethod'      => $methods[mt_rand(0, count($methods) - 1)],
                 'status'             => $statuses[mt_rand(0, count($statuses) - 1)],
+                'limit'              => mt_rand(1, 100),
+                'cursor'             => $this->randomString(mt_rand(1, 30)),
             );
             $result[] = array($request);
         }

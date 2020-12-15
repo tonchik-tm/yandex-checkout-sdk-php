@@ -6,9 +6,12 @@ use PHPUnit\Framework\TestCase;
 use YandexCheckout\Helpers\Random;
 use YandexCheckout\Model\ConfirmationType;
 use YandexCheckout\Model\CurrencyCode;
+use YandexCheckout\Model\MonetaryAmount;
 use YandexCheckout\Model\PaymentMethodType;
 use YandexCheckout\Model\PaymentStatus;
 use YandexCheckout\Model\ReceiptRegistrationStatus;
+use YandexCheckout\Model\Transfer;
+use YandexCheckout\Model\TransferStatus;
 use YandexCheckout\Request\Payments\PaymentResponse;
 
 abstract class AbstractPaymentResponseTest extends TestCase
@@ -210,6 +213,22 @@ abstract class AbstractPaymentResponseTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider validDataProvider
+     * @param array $options
+     */
+    public function testGetTransfers($options)
+    {
+        $instance = $this->getTestInstance($options);
+        if (empty($options['transfers'])) {
+            self::assertEmpty($instance->getMetadata());
+        } else {
+            foreach ($instance->getTransfers() as $transfer) {
+                self::assertInstanceOf('\YandexCheckout\Model\Transfer', $transfer);
+            }
+        }
+    }
+
     public function validDataProvider()
     {
         $result = array();
@@ -260,10 +279,22 @@ abstract class AbstractPaymentResponseTest extends TestCase
                     'value' => Random::float(0.01, 1000000.0),
                     'currency' => Random::str(1, 256),
                 ),
+                'requestor' => array(
+                    'type' => 'RequestorMarchant',
+                    'account_id' => Random::int(100000, 999999),
+                ),
                 'authorization_details' => array(
                     'rrn'       => Random::str(10),
                     'auth_code' => Random::str(10),
                 ),
+                'transfers' => array(
+                    new Transfer(array(
+                        'account_id' => Random::str(36),
+                        'amount' => new MonetaryAmount(Random::int(1, 1000), 'RUB'),
+                        'platform_fee_amount' => new MonetaryAmount(Random::int(1, 1000), 'RUB'),
+                        'status' => Random::value(TransferStatus::getValidValues()),
+                    )),
+                )
             );
             $result[] = array($payment);
         }
@@ -288,6 +319,11 @@ abstract class AbstractPaymentResponseTest extends TestCase
                 'created_at' => date(DATE_ATOM, Random::int(1, time())),
                 'captured_at' => date(DATE_ATOM, Random::int(1, time())),
                 'expires_at' => date(DATE_ATOM, Random::int(1, time())),
+                'requestor' => array(
+                    'type' => 'RequestorThirdPartyService',
+                    'client_id' => Random::int(100000, 999999),
+                    'client_name' => Random::str(1, 50),
+                ),
                 'confirmation' => array(
                     'type' => 'qr',
                     'confirmation_data' => 'weixin://wxpay/bizpayurl?pr=SqTE9cX'
@@ -296,6 +332,14 @@ abstract class AbstractPaymentResponseTest extends TestCase
                 'refundable' => $trueFalse,
                 'test' => $trueFalse,
                 'metadata' => array(),
+                'transfers' => array(
+                    new Transfer(array(
+                        'account_id' => Random::str(36),
+                        'amount' => new MonetaryAmount(Random::int(1, 1000), 'RUB'),
+                        'platform_fee_amount' => new MonetaryAmount(Random::int(1, 1000), 'RUB'),
+                        'status' => Random::value(TransferStatus::getValidValues()),
+                    )),
+                )
             )
         );
 
@@ -341,6 +385,24 @@ abstract class AbstractPaymentResponseTest extends TestCase
                 $options['authorization_details']['auth_code'],
                 $instance->getAuthorizationDetails()->getAuthCode()
             );
+        }
+    }
+
+    /**
+     * @dataProvider validDataProvider
+     * @param $options
+     */
+    public function testGetRequestor($options)
+    {
+        $instance = $this->getTestInstance($options);
+
+        if ($options['requestor']['type'] === 'RequestorThirdPartyService') {
+            self::assertEquals($options['requestor']['type'], $instance->getRequestor()->getType());
+            self::assertEquals($options['requestor']['client_id'], $instance->getRequestor()->getClientId());
+            self::assertEquals($options['requestor']['client_name'], $instance->getRequestor()->getClientName());
+        } else {
+            self::assertEquals($options['requestor']['type'], $instance->getRequestor()->getType());
+            self::assertEquals($options['requestor']['account_id'], $instance->getRequestor()->getAccountId());
         }
     }
 
