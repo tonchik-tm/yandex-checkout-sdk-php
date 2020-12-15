@@ -44,6 +44,7 @@ use YandexCheckout\Model\PaymentInterface;
 use YandexCheckout\Model\PaymentMethod\AbstractPaymentMethod;
 use YandexCheckout\Model\PaymentMethod\PaymentMethodFactory;
 use YandexCheckout\Model\Recipient;
+use YandexCheckout\Model\Transfer;
 
 /**
  * Абстрактный класс ответа от API, возвращающего информацию о платеже
@@ -167,6 +168,20 @@ abstract class AbstractPaymentResponse extends Payment implements PaymentInterfa
             $rrn                  = isset($authorizationDetails['rrn']) ? $authorizationDetails['rrn'] : null;
             $authCode             = isset($authorizationDetails['auth_code']) ? $authorizationDetails['auth_code'] : null;
             $this->setAuthorizationDetails(new AuthorizationDetails($rrn, $authCode));
+        }
+        if (!empty($paymentInfo['transfers'])) {
+            $transfers = array();
+            foreach ($paymentInfo['transfers'] as $transferDefinition) {
+                $transfers[] = new Transfer($transferDefinition);
+            }
+
+            $this->setTransfers($transfers);
+        }
+        if (!empty($paymentInfo['income_amount'])) {
+            $this->setIncomeAmount($this->factoryAmount($paymentInfo['income_amount']));
+        }
+        if (!empty($paymentInfo['requestor'])) {
+            $this->setRequestor($paymentInfo['requestor']);
         }
     }
 

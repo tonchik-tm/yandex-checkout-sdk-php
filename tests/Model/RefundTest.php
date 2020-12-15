@@ -6,10 +6,13 @@ use PHPUnit\Framework\TestCase;
 use YandexCheckout\Helpers\Random;
 use YandexCheckout\Helpers\StringObject;
 use YandexCheckout\Model\AmountInterface;
+use YandexCheckout\Model\CurrencyCode;
 use YandexCheckout\Model\MonetaryAmount;
 use YandexCheckout\Model\ReceiptRegistrationStatus;
 use YandexCheckout\Model\Refund;
 use YandexCheckout\Model\RefundStatus;
+use YandexCheckout\Model\Source;
+use YandexCheckout\Request\Refunds\CreateRefundRequest;
 
 class RefundTest extends TestCase
 {
@@ -90,6 +93,45 @@ class RefundTest extends TestCase
             array(true),
             array(false),
         );
+    }
+
+    /**
+     * @dataProvider validSources
+     * @param $value
+     */
+    public function testSetSources($value)
+    {
+        $instance = new CreateRefundRequest();
+        $instance->setSources($value);
+        if (is_array($value)) {
+            $value = array(new Source($value[0]));
+        }
+        self::assertEquals($value, $instance->getSources());
+    }
+
+    /**
+     * @return array[]
+     * @throws \Exception
+     */
+    public function validSources()
+    {
+        $sources = array();
+        for($i = 0; $i < 10; $i++) {
+            $sources[$i][] = array(
+                'account_id' => (string)Random::int(11111111, 99999999),
+                'amount' => array(
+                    'value' => sprintf('%.2f', round(Random::float(0.1, 99.99), 2)),
+                    'currency' => Random::value(CurrencyCode::getValidValues())
+                ),
+                'platform_fee_amount' => array(
+                    'value' => sprintf('%.2f', round(Random::float(0.1, 99.99), 2)),
+                    'currency' => Random::value(CurrencyCode::getValidValues())
+                ),
+            );
+        }
+        $sources[$i][] = array(new Source($sources[0]));
+
+        return array($sources);
     }
 
     /**
@@ -493,21 +535,21 @@ class RefundTest extends TestCase
      * @dataProvider validCommentDataProvider
      * @param string $value
      */
-    public function testGetSetComment($value)
+    public function testGetSetDescription($value)
     {
         $instance = new Refund();
 
-        self::assertNull($instance->getComment());
-        self::assertNull($instance->comment);
+        self::assertNull($instance->getDescription());
+        self::assertNull($instance->description);
 
-        $instance->setComment($value);
-        self::assertEquals((string)$value, $instance->getComment());
-        self::assertEquals((string)$value, $instance->comment);
+        $instance->setDescription($value);
+        self::assertEquals((string)$value, $instance->getDescription());
+        self::assertEquals((string)$value, $instance->description);
 
         $instance = new Refund();
-        $instance->comment = $value;
-        self::assertEquals((string)$value, $instance->getComment());
-        self::assertEquals((string)$value, $instance->comment);
+        $instance->description = $value;
+        self::assertEquals((string)$value, $instance->getDescription());
+        self::assertEquals((string)$value, $instance->description);
     }
 
     public function validCommentDataProvider()
@@ -528,7 +570,7 @@ class RefundTest extends TestCase
     public function testSetInvalidComment($value)
     {
         $instance = new Refund();
-        $instance->setComment($value);
+        $instance->setDescription($value);
     }
 
     /**
@@ -539,7 +581,7 @@ class RefundTest extends TestCase
     public function testSetterInvalidComment($value)
     {
         $instance = new Refund();
-        $instance->comment = $value;
+        $instance->description = $value;
     }
 
     public function invalidCommentDataProvider()
@@ -547,8 +589,6 @@ class RefundTest extends TestCase
         return array(
             array(null),
             array(''),
-            array(Random::str(251)),
-            array(new StringObject(Random::str(251))),
             array(array()),
             array(true),
             array(false),

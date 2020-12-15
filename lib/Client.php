@@ -45,10 +45,6 @@ use YandexCheckout\Helpers\UUID;
 use YandexCheckout\Model\PaymentInterface;
 use YandexCheckout\Model\RefundInterface;
 use YandexCheckout\Model\Webhook\Webhook;
-use YandexCheckout\Request\PaymentOptionsRequest;
-use YandexCheckout\Request\PaymentOptionsRequestInterface;
-use YandexCheckout\Request\PaymentOptionsRequestSerializer;
-use YandexCheckout\Request\PaymentOptionsResponse;
 use YandexCheckout\Request\Payments\CreatePaymentRequest;
 use YandexCheckout\Request\Payments\CreatePaymentRequestInterface;
 use YandexCheckout\Request\Payments\CreatePaymentResponse;
@@ -68,6 +64,8 @@ use YandexCheckout\Request\Receipts\CreatePostReceiptRequest;
 use YandexCheckout\Request\Receipts\CreatePostReceiptRequestInterface;
 use YandexCheckout\Request\Receipts\CreatePostReceiptRequestSerializer;
 use YandexCheckout\Request\Receipts\ReceiptResponseFactory;
+use YandexCheckout\Request\Receipts\ReceiptsRequest;
+use YandexCheckout\Request\Receipts\ReceiptsRequestSerializer;
 use YandexCheckout\Request\Receipts\ReceiptsResponse;
 use YandexCheckout\Request\Refunds\CreateRefundRequest;
 use YandexCheckout\Request\Refunds\CreateRefundRequestInterface;
@@ -92,7 +90,7 @@ class Client extends BaseClient
     /**
      * Текущая версия библиотеки
      */
-    const SDK_VERSION = '1.5.6';
+    const SDK_VERSION = '1.6.9';
 
     /**
      * Получить список платежей магазина.
@@ -135,50 +133,6 @@ class Client extends BaseClient
         }
 
         return $paymentResponse;
-    }
-
-    /**
-     * Доступные способы оплаты.
-     * Используйте этот метод, чтобы получить способы оплаты и сценарии, доступные для вашего заказа.
-     *
-     * @param PaymentOptionsRequestInterface|array $paymentOptionsRequest
-     *
-     * @return PaymentOptionsResponse
-     * @throws ApiException
-     * @throws BadApiRequestException
-     * @throws ForbiddenException
-     * @throws InternalServerError
-     * @throws NotFoundException
-     * @throws ResponseProcessingException
-     * @throws TooManyRequestsException
-     * @throws UnauthorizedException
-     * @throws ExtensionNotFoundException
-     */
-    public function getPaymentOptions($paymentOptionsRequest = null)
-    {
-        $path = "/payment_options";
-
-        if ($paymentOptionsRequest === null) {
-            $queryParams = array();
-        } else {
-            if (is_array($paymentOptionsRequest)) {
-                $paymentOptionsRequest = PaymentOptionsRequest::builder()->build($paymentOptionsRequest);
-            }
-            $serializer  = new PaymentOptionsRequestSerializer();
-            $queryParams = $serializer->serialize($paymentOptionsRequest);
-        }
-
-        $response = $this->execute($path, HttpVerb::GET, $queryParams);
-
-        $result = null;
-        if ($response->getCode() == 200) {
-            $responseArray = $this->decodeData($response);
-            $result        = new PaymentOptionsResponse($responseArray);
-        } else {
-            $this->handleError($response);
-        }
-
-        return $result;
     }
 
     /**
@@ -697,6 +651,7 @@ class Client extends BaseClient
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
      * @throws ExtensionNotFoundException
+     * @throws Exception
      */
     public function getReceipts($filter = null)
     {
@@ -706,16 +661,10 @@ class Client extends BaseClient
             $queryParams = array();
         } else {
             if (is_array($filter)) {
-                $queryParams = $filter;
-            } elseif ($filter instanceof PaymentInterface) {
-                $queryParams = array(
-                    'payment_id' => $filter->getId()
-                );
-            } elseif ($filter instanceof RefundInterface) {
-                $queryParams = array(
-                    'refund_id' => $filter->getId()
-                );
+                $filter = ReceiptsRequest::builder()->build($filter);
             }
+            $serializer  = new ReceiptsRequestSerializer();
+            $queryParams = $serializer->serialize($filter);
         }
 
         $response = $this->execute($path, HttpVerb::GET, $queryParams);

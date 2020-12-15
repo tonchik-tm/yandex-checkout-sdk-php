@@ -30,6 +30,7 @@ use YandexCheckout\Common\AbstractPaymentRequestBuilder;
 use YandexCheckout\Common\Exceptions\EmptyPropertyValueException;
 use YandexCheckout\Common\Exceptions\InvalidPropertyValueException;
 use YandexCheckout\Common\Exceptions\InvalidPropertyValueTypeException;
+use YandexCheckout\Model\SourceInterface;
 
 /**
  * Класс билдера запросов к API на создание возврата средств
@@ -38,6 +39,11 @@ use YandexCheckout\Common\Exceptions\InvalidPropertyValueTypeException;
  */
 class CreateRefundRequestBuilder extends AbstractPaymentRequestBuilder
 {
+    /**
+     * @var SourceInterface[] Данные о распределении денег — сколько и в какой магазин нужно перевести
+     */
+    private $sources;
+
     /**
      * @var CreateRefundRequest Собираемый объет запроса к API
      */
@@ -72,15 +78,41 @@ class CreateRefundRequestBuilder extends AbstractPaymentRequestBuilder
 
     /**
      * Устанавливает комментарий к возврату
+     * @deprecated Устарел. Будет удален в одной из следующих версий
      * @param string $value Комментарий к возврату
      * @return CreateRefundRequestBuilder Инстанс текущего билдера
      *
-     * @throws InvalidPropertyValueException Выбрасывается если переданная строка длинее 250 символов
      * @throws InvalidPropertyValueTypeException Выбрасывается если была передана не строка
      */
     public function setComment($value)
     {
-        $this->currentObject->setComment($value);
+        $this->currentObject->setDescription($value);
+        return $this;
+    }
+
+    /**
+     * Устанавливает комментарий к возврату
+     * @param string $value Комментарий к возврату
+     * @return CreateRefundRequestBuilder Инстанс текущего билдера
+     *
+     * @throws InvalidPropertyValueTypeException Выбрасывается если была передана не строка
+     */
+    public function setDescription($value)
+    {
+        $this->currentObject->setDescription($value);
+        return $this;
+    }
+
+    /**
+     * Устанавливает источники возврата
+     *
+     * @param array|string $value Массив трансферов
+     *
+     * @return self Инстанс билдера запросов
+     */
+    public function setSources($value)
+    {
+        $this->currentObject->setSources($value);
         return $this;
     }
 
@@ -94,7 +126,9 @@ class CreateRefundRequestBuilder extends AbstractPaymentRequestBuilder
         if (!empty($options)) {
             $this->setOptions($options);
         }
+
         $this->currentObject->setAmount($this->amount);
+
         if ($this->receipt->notEmpty()) {
             $this->currentObject->setReceipt($this->receipt);
         }

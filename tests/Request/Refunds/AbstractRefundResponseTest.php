@@ -6,8 +6,10 @@ use PHPUnit\Framework\TestCase;
 use YandexCheckout\Helpers\Random;
 use YandexCheckout\Model\AmountInterface;
 use YandexCheckout\Model\CurrencyCode;
+use YandexCheckout\Model\MonetaryAmount;
 use YandexCheckout\Model\ReceiptRegistrationStatus;
 use YandexCheckout\Model\RefundStatus;
+use YandexCheckout\Model\Source;
 use YandexCheckout\Request\Refunds\AbstractRefundResponse;
 
 abstract class AbstractRefundResponseTest extends TestCase
@@ -92,10 +94,26 @@ abstract class AbstractRefundResponseTest extends TestCase
     public function testGetComment($options)
     {
         $instance = $this->getTestInstance($options);
-        if (empty($options['comment'])) {
-            self::assertNull($instance->getComment());
+        if (empty($options['description'])) {
+            self::assertNull($instance->getDescription());
         } else {
-            self::assertEquals($options['comment'], $instance->getComment());
+            self::assertEquals($options['description'], $instance->getDescription());
+        }
+    }
+
+    /**
+     * @dataProvider validDataProvider
+     * @param array $options
+     */
+    public function testGetSources($options)
+    {
+        $instance = $this->getTestInstance($options);
+        if (empty($options['sources'])) {
+            self::assertEmpty($instance->getSources());
+        } else {
+            foreach ($instance->getSources() as $sources) {
+                self::assertInstanceOf('\YandexCheckout\Model\Source', $sources);
+            }
         }
     }
 
@@ -114,7 +132,14 @@ abstract class AbstractRefundResponseTest extends TestCase
                     'currency' => Random::value(CurrencyCode::getValidValues()),
                 ),
                 'receipt_registration' => Random::value(ReceiptRegistrationStatus::getValidValues()),
-                'comment' => uniqid(),
+                'description' => uniqid(),
+                'sources' => array(
+                    new Source(array(
+                        'account_id' => Random::str(36),
+                        'amount' => new MonetaryAmount(Random::int(1, 1000), 'RUB'),
+                        'platform_fee_amount' => new MonetaryAmount(Random::int(1, 1000), 'RUB'),
+                    )),
+                )
             );
             $result[] = array($payment);
         }

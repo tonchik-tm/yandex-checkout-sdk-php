@@ -24,17 +24,10 @@ use YandexCheckout\Common\Exceptions\UnauthorizedException;
 use YandexCheckout\Common\LoggerWrapper;
 use YandexCheckout\Helpers\Random;
 use YandexCheckout\Helpers\StringObject;
-use YandexCheckout\Model\CurrencyCode;
-use YandexCheckout\Model\MonetaryAmount;
-use YandexCheckout\Model\Receipt\ReceiptItemAmount;
-use YandexCheckout\Model\Receipt\SettlementType;
 use YandexCheckout\Model\ReceiptCustomer;
 use YandexCheckout\Model\ReceiptItem;
 use YandexCheckout\Model\ReceiptType;
 use YandexCheckout\Model\Settlement;
-use YandexCheckout\Request\PaymentOptionsRequest;
-use YandexCheckout\Request\PaymentOptionsResponse;
-use YandexCheckout\Request\PaymentOptionsResponseItem;
 use YandexCheckout\Request\Payments\CreatePaymentResponse;
 use YandexCheckout\Request\Payments\CreatePaymentRequest;
 use YandexCheckout\Request\Payments\Payment\CancelResponse;
@@ -53,97 +46,6 @@ use YandexCheckout\Request\Refunds\RefundsResponse;
 
 class ClientTest extends TestCase
 {
-    /**
-     * @dataProvider paymentOptionsDataProvider
-     * @param $paymentOptionsRequest
-     * @throws ApiException
-     * @throws ResponseProcessingException
-     * @throws BadApiRequestException
-     * @throws ForbiddenException
-     * @throws InternalServerError
-     * @throws NotFoundException
-     * @throws TooManyRequestsException
-     * @throws UnauthorizedException
-     * @throws ExtensionNotFoundException
-     */
-    public function testPaymentOptions($paymentOptionsRequest)
-    {
-        $curlClientStub = $this->getCurlClientStub();
-        $curlClientStub
-            ->expects($this->once())
-            ->method('sendRequest')
-            ->willReturn(array(
-                array('Header-Name' => 'HeaderValue'),
-                $this->getFixtures('paymentOptionsFixtures.json'),
-                array('http_code' => 200)
-            ));
-
-        $apiClient = new Client();
-        $response = $apiClient
-            ->setApiClient($curlClientStub)
-            ->setAuth('shopId', 'shopPassword')
-            ->getPaymentOptions($paymentOptionsRequest);
-
-        self::assertSame($curlClientStub, $apiClient->getApiClient());
-        $this->assertTrue($response instanceof PaymentOptionsResponse);
-        foreach ($response->getItems() as $item) {
-            $this->assertTrue($item instanceof PaymentOptionsResponseItem);
-        }
-
-        $items = $response->getItems();
-        $item = $items[0];
-
-        $this->assertTrue($item->getExtraFee());
-        $this->assertEquals("yandex_money", $item->getPaymentMethodType());
-        $this->assertEquals(array("redirect"), $item->getConfirmationTypes());
-        $this->assertEquals("10.00", $item->getCharge()->getValue());
-        $this->assertEquals("RUB", $item->getCharge()->getCurrency());
-        $this->assertEquals("10.00", $item->getFee()->getValue());
-        $this->assertEquals("RUB", $item->getFee()->getCurrency());
-    }
-
-    public function paymentOptionsDataProvider()
-    {
-        return array(
-            array(null),
-            array(PaymentOptionsRequest::builder()->setAccountId('123')->build()),
-            array(
-                array(
-                    'account_id' => '123',
-                )
-            )
-        );
-    }
-
-    /**
-     * @dataProvider errorResponseDataProvider
-     * @param $httpCode
-     * @param $errorResponse
-     * @param $requiredException
-     */
-    public function testInvalidPaymentOptions($httpCode, $errorResponse, $requiredException)
-    {
-        $paymentOptionsRequest = PaymentOptionsRequest::builder()->setAccountId('123')->build();
-        $curlClientStub = $this->getCurlClientStub();
-        $curlClientStub
-            ->expects($this->once())
-            ->method('sendRequest')
-            ->willReturn(array(
-                array('Header-Name' => 'HeaderValue'),
-                $errorResponse,
-                array('http_code' => $httpCode)
-            ));
-
-        $apiClient = new Client();
-        $apiClient->setApiClient($curlClientStub)->setAuth('shopId', 'shopPassword');
-        try {
-            $apiClient->getPaymentOptions($paymentOptionsRequest);
-        } catch (Exception $e) {
-            self::assertInstanceOf($requiredException, $e);
-            return;
-        }
-        self::fail('Exception not thrown');
-    }
 
     public function testCreatePayment()
     {
@@ -1112,7 +1014,7 @@ class ClientTest extends TestCase
         $apiClient->setLogger($logger);
 
         $clientMock = $this->getMockBuilder('YandexCheckout\Client\ApiClientInterface')
-            ->setMethods(array('setLogger', 'setConfig', 'call', 'getUserAgent'))
+            ->setMethods(array('setLogger', 'setConfig', 'call', 'setShopId', 'getUserAgent', 'setBearerToken', 'setShopPassword'))
             ->disableOriginalConstructor()
             ->getMock();
         $expectedLoggers = array();
@@ -1394,6 +1296,7 @@ class ClientTest extends TestCase
             ->setObjectId('1da5c87d-0984-50e8-a7f3-8de646dd9ec9')
             ->setSend(true)
             ->setSettlements(array($settlement))
+            ->setOnBehalfOf('545665')
             ->setItems(array($receiptItem))
             ->build();
     }
